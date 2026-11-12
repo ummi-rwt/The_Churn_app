@@ -3,7 +3,7 @@ Predicting which telecom customers will leave, and whether a retention offer is 
 
 # Telecom customer churn: who is about to leave, and is it worth calling them?
 
-**Live demo:** https://thechurntelecom-refl7liuc73zdbwp95mgqb.streamlit.app/
+**Live demo:** https://thechurnapp-cik5xfynfraftmkmqnpokm.streamlit.app/
 
 <!-- Write 2-3 sentences here in your own words: why this project, what you wanted to learn. Delete this comment when done. -->
 
