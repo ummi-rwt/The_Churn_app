@@ -1,6 +1,3 @@
-# The_Churn_telecom
-Predicting which telecom customers will leave, and whether a retention offer is worth it. Python, scikit-learn, SHAP, Streamlit.
-
 # Telecom customer churn: who is about to leave, and is it worth calling them?
 
 **Live demo:** https://thechurnapp-cik5xfynfraftmkmqnpokm.streamlit.app/
@@ -27,7 +24,7 @@ I kept **5,992 customers** (21% of them churned):
 4. Compared five models with 5-fold cross-validation, against a "nobody leaves" baseline.
 5. Chose the decision threshold with a simple cost model instead of the default 0.5.
 6. Explained the model with SHAP.
-7. Evaluated once on the test set, then built a small Streamlit app.
+7. Evaluated once on the test set, then built a small Streamlit app with a downloadable customer recap.
 
 ## What the data shows
 
@@ -46,7 +43,11 @@ I kept **5,992 customers** (21% of them churned):
 
 Fiber optic customers left more (35%) than DSL (13%) or cable (19%) customers.
 
+![Churn rate by contract, internet type and tenure](images/churn_drivers.png)
+
 For the 1,272 customers who left, the company recorded a reason. 45% went to a competitor (better devices, better offer, more data, faster speeds), 17% were dissatisfied, 16% blamed the attitude of the staff, and 11% cited price. These reasons come from customers who already left, so they are not necessarily the real causes.
+
+![Reasons for leaving](images/churn_reasons.png)
 
 ## Results
 
@@ -62,6 +63,8 @@ Cross-validation on the training set:
 | Random forest | 0.852 | 0.700 | 0.640 | 0.898 |
 | SVM (RBF) | 0.808 | 0.814 | 0.531 | 0.890 |
 | KNN | 0.808 | 0.533 | 0.549 | 0.812 |
+
+![Model comparison](images/model_comparison.png)
 
 Gradient boosting has the best AUC, but the gap with logistic regression is small, within the noise of cross-validation. Logistic regression, random forest and SVM were trained with class weights and gradient boosting was not, so their recall is not directly comparable; AUC is the fairer comparison. Removing `Total Refunds` and `Total Extra Data Charges` left the AUC unchanged (0.910).
 
@@ -102,6 +105,12 @@ The contract type (two years, one year), the number of referrals, the number of 
 
 <!-- Write 2-3 sentences here in your own words: which variables dominate, what surprised you, what you would do first. Delete this comment when done. -->
 
+## The app
+
+The Streamlit app asks 10 questions about a customer (contract, tenure, monthly charge...) and gives the probability of leaving. It then decides whether a retention offer is worth sending, using the offer cost, success rate and customer value you set in the sidebar.
+
+For each customer, it can also build a one-page recap (PDF or PNG): the risk, the recommended action, and the answers that push the risk up or down. This explanation uses SHAP, computed for that one customer.
+
 ## A mistake I fixed
 
 My first version removed the "Joined" customers but kept customers with 3 months of tenure or less. Among those, only the ones who had already left remained, so the data said that **100% of customers with up to 3 months of tenure leave**, which is an artifact of my filter and not real behavior. The model learned it: AUC 0.935 and a profit of about 128,000 €, both inflated. I noticed it on the SHAP plot (a cluster of points far from all the others) and checked it with a tenure table. After removing these customers, the numbers dropped to the ones above.
@@ -123,4 +132,4 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Files: `app.py` (Streamlit app), `telco_model.joblib` (trained model), `Telco_Churn.ipynb` (analysis), `images/` (charts).
+Files: `app.py` (Streamlit app), `recap.py` (builds the one-page customer recap), `telco_model.joblib` (trained model), `Telco_Churn.ipynb` (analysis), `requirements.txt`, `images/` (charts).
