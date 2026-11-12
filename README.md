@@ -43,11 +43,11 @@ I kept **5,992 customers** (21% of them churned):
 
 Fiber optic customers left more (35%) than DSL (13%) or cable (19%) customers.
 
-![Churn rate by contract, internet type and tenure](images/churn_drivers.png)
+![Churn rate by contract, internet type and tenure](churn_drivers.png)
 
 For the 1,272 customers who left, the company recorded a reason. 45% went to a competitor (better devices, better offer, more data, faster speeds), 17% were dissatisfied, 16% blamed the attitude of the staff, and 11% cited price. These reasons come from customers who already left, so they are not necessarily the real causes.
 
-![Reasons for leaving](images/churn_reasons.png)
+![Reasons for leaving](churn_reasons.png)
 
 ## Results
 
@@ -64,7 +64,7 @@ Cross-validation on the training set:
 | SVM (RBF) | 0.808 | 0.814 | 0.531 | 0.890 |
 | KNN | 0.808 | 0.533 | 0.549 | 0.812 |
 
-![Model comparison](images/model_comparison.png)
+![Model comparison](model_comparison.png)
 
 Gradient boosting has the best AUC, but the gap with logistic regression is small, within the noise of cross-validation. Logistic regression, random forest and SVM were trained with class weights and gradient boosting was not, so their recall is not directly comparable; AUC is the fairer comparison. Removing `Total Refunds` and `Total Extra Data Charges` left the AUC unchanged (0.910).
 
@@ -81,7 +81,7 @@ With **made-up** costs (offer 100 €, 30% of leavers accept to stay, a kept cus
 
 The best threshold (0.45) is close to the simple rule *offer cost / (success rate x customer value)* = 0.42, and the curve is almost flat between 0.35 and 0.50. These amounts are assumptions, not real data: change them in the app and watch the decision move.
 
-![Expected profit by threshold](images/profit_by_threshold.png)
+![Expected profit by threshold](profit_by_threshold.png)
 
 ### Final test
 
@@ -99,7 +99,7 @@ This is a little lower than in cross-validation (AUC 0.910, about 13.6 € per c
 
 ### What drives churn (SHAP)
 
-![SHAP summary](images/shap_beeswarm.png)
+![SHAP summary](shap_beeswarm.png)
 
 The contract type (two years, one year), the number of referrals, the number of dependents and the tenure push the risk down. A high monthly charge, a higher age and fiber optic push it up.
 
