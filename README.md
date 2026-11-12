@@ -2,13 +2,14 @@
 
 **Live demo:** https://thechurnapp-cik5xfynfraftmkmqnpokm.streamlit.app/
 
-<!-- Write 2-3 sentences here in your own words: why this project, what you wanted to learn. Delete this comment when done. -->
+A telecom company wants to predict which customers are likely to leave and decide which customers are worth contacting with a special offer, depending on its cost.
 
-A telecom operator wants to keep customers who are about to leave. This project predicts who is likely to churn and, more importantly, decides **whom to contact** once you put a price on the retention offer.
+
+I decided to commit to this project because it brings together the basic fundamentals and ML concepts that I needed to revise. I wanted to challenge myself, and it did: the cleaning phase of the dataset was quite thorough.
 
 ## The data
 
-The IBM Telco customer churn dataset: 7,043 customers and 50 columns (contract, services, monthly charge, tenure, reasons for leaving...). It is a **fictional** dataset made by IBM for teaching, so the results say nothing about a real operator. The file is not included in this repo.
+The IBM Telco customer churn dataset: 7,043 customers and 50 columns (contract, services, monthly charge, tenure, reasons for leaving...). It is a **fictional** dataset made by IBM for teaching, so the results say nothing about a real operator (the file is not included in this repo).
 
 I kept **5,992 customers** (21% of them churned):
 
@@ -103,7 +104,6 @@ This is a little lower than in cross-validation (AUC 0.910, about 13.6 € per c
 
 The contract type (two years, one year), the number of referrals, the number of dependents and the tenure push the risk down. A high monthly charge, a higher age and fiber optic push it up.
 
-<!-- Write 2-3 sentences here in your own words: which variables dominate, what surprised you, what you would do first. Delete this comment when done. -->
 
 ## The app
 
