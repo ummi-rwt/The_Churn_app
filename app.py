@@ -145,26 +145,31 @@ st.subheader("Customer profile")
 col1, col2 = st.columns(2)
 with col1:
     contract = st.selectbox("Contract", ["Month-to-Month", "One Year", "Two Year"])
+    internet = st.selectbox("Internet type", ["Cable", "DSL", "Fiber Optic", "No internet"])
+with col2:
     tenure = st.slider("Months as a customer", 4, 72, 12)
     monthly_charge = st.number_input("Monthly bill (€)", min_value=18.0, max_value=125.0, value=70.0, step=1.0)
-    internet = st.selectbox("Internet type", ["Cable", "DSL", "Fiber Optic", "No internet"])
+
+with st.expander("More details (optional)"):
     payment = st.selectbox("Payment method", ["Bank Withdrawal", "Credit Card", "Mailed Check"])
-with col2:
-    age = st.slider("Age", 19, 80, 45)
-    dependents = st.slider("Children / people in the household", 0, 9, 0)
-    referrals = st.slider("Number of referrals", 0, 11, 0)
-    gb_download = st.slider("Data used per month (GB)", 0, 85, 20)
+    more_left, more_right = st.columns(2)
+    with more_left:
+        age = st.slider("Age", 19, 80, 45)
+        dependents = st.slider("Children / people in the household", 0, 9, 0)
+    with more_right:
+        referrals = st.slider("Number of referrals", 0, 11, 0)
+        gb_download = st.slider("Data used per month (GB)", 0, 85, 20)
     paperless = st.checkbox("Receives bills online only", value=False)
 
 row = dict(defaults)
-row["Months as a customer"] = tenure
-row["Monthly bill"] = monthly_charge
+row["Tenure in Months"] = tenure
+row["Monthly Charge"] = monthly_charge
 row["Age"] = age
-row["Children / people in the household"] = dependents
+row["Number of Dependents"] = dependents
 row["Number of Referrals"] = referrals
 row["Referred a Friend"] = 1.0 if referrals > 0 else 0.0
-row["Data used per month"] = gb_download
-row["Receives bills online only"] = 1.0 if paperless else 0.0
+row["Avg Monthly GB Download"] = gb_download
+row["Paperless Billing"] = 1.0 if paperless else 0.0
 set_choice(row, "Contract", contract)
 set_choice(row, "Internet Type", internet)
 set_choice(row, "Payment Method", payment)
