@@ -125,7 +125,7 @@ def set_choice(row, group, choice):
 
 st.title("Telecom customer churn risk")
 st.caption(
-    "Will this customer leave? : this demo was built on the IBM Telco customer churn dataset (fictional dataset). "
+    "Will this customer leave ? : this demo was built on the IBM Telco customer churn dataset (fictional dataset). "
     "The costs in the sidebar are only assumptions."
 )
 
