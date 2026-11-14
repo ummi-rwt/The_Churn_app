@@ -129,7 +129,7 @@ st.caption(
     "The costs in the sidebar are only assumptions."
 )
 
-st.sidebar.header("Business assumptions")
+st.sidebar.header("Business assumptions 💰")
 offer_cost = st.sidebar.number_input("Cost of the retention offer (€)", min_value=1, value=100, step=10)
 success_rate = st.sidebar.slider("Chance the offer convinces the customer (%)", 1, 100, 30) / 100
 customer_value = st.sidebar.number_input("What a kept customer brings in 1 year (€)", min_value=1, value=800, step=50)
@@ -141,7 +141,7 @@ if threshold > 1:
 else:
     st.sidebar.caption("Below this risk, the offer costs more than it brings back.")
 
-st.subheader("Customer profile")
+st.subheader("Customer profile 👤")
 col1, col2 = st.columns(2)
 with col1:
     contract = st.selectbox("Contract", ["Month-to-Month", "One Year", "Two Year"])
@@ -150,7 +150,7 @@ with col2:
     tenure = st.slider("Months as a customer", 4, 72, 12)
     monthly_charge = st.number_input("Monthly bill (€)", min_value=18.0, max_value=125.0, value=70.0, step=1.0)
 
-with st.expander("More details (optional)"):
+with st.expander("More details ➕"):
     payment = st.selectbox("Payment method", ["Bank Withdrawal", "Credit Card", "Mailed Check"])
     more_left, more_right = st.columns(2)
     with more_left:
@@ -177,7 +177,7 @@ set_choice(row, "Payment Method", payment)
 X_new = pd.DataFrame([row])[columns].astype(float)
 proba = float(model.predict_proba(X_new)[0, 1])
 
-st.subheader("Prediction")
+st.subheader("Prediction 🎯")
 st.metric("Chance this customer leaves", f"{proba:.0%}")
 
 expected_gain = proba * success_rate * customer_value - offer_cost
@@ -192,7 +192,7 @@ st.caption(
     "so it is not meant for brand-new customers."
 )
 
-st.subheader("Recap dashboard")
+st.subheader("Recap dashboard 📄")
 show_recap = st.toggle("Create a one-page summary for this customer")
 if show_recap:
     if shap is None:
