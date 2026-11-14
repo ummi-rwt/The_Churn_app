@@ -179,7 +179,7 @@ expected_gain = proba * success_rate * customer_value - offer_cost
 if proba >= threshold:
     st.success(f"Worth contacting: offering the retention deal should bring back about {expected_gain:,.0f} € on average.")
 else:
-    st.info(f"Not worth contacting: the offer would cost about {-expected_gain:,.0f} € € more than it brings back on average.")
+    st.info(f"Not worth contacting: the offer would cost about {-expected_gain:,.0f} € more than it brings back on average.")
 
 st.caption(
     "Good to know: you only enter 10 details here, and all the others are set to the typical customer. "
