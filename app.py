@@ -10,7 +10,7 @@ try:
 except ImportError:
     shap = None
 
-st.set_page_config(page_title="Telecom churn risk", page_icon="📡")
+st.set_page_config(page_title="Telecom churn risk", page_icon="logo.jpg"))
 
 
 STYLE = """
