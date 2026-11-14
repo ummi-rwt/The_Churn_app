@@ -13,27 +13,26 @@ INK = "#0b0b0b"
 INK_2 = "#52514e"
 MUTED = "#898781"
 GRID = "#e1e0d9"
-AXIS = "#c3c2b7"
 BLUE = "#2a78d6"
 RED = "#e34948"
-GOOD_TEXT = "#006300"
-CRITICAL = "#d03b3b"
+AMBER = "#c77d0a"
+GREEN = "#1b7a3d"
 FONT = ["system-ui", "Segoe UI", "DejaVu Sans"]
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = FONT
 
 GROUPS = {
-    "Contract": ["Contract_One Year", "Contract_Two Year"],
-    "Tenure": ["Tenure in Months"],
-    "Monthly charge": ["Monthly Charge"],
-    "Internet type": "Internet Type_",
+    "Contract type": ["Contract_One Year", "Contract_Two Year"],
+    "Time as a customer": ["Tenure in Months"],
+    "Monthly bill": ["Monthly Charge"],
+    "Internet connection": "Internet Type_",
     "Payment method": "Payment Method_",
     "Age": ["Age"],
-    "Dependents": ["Number of Dependents"],
-    "Referrals": ["Number of Referrals", "Referred a Friend"],
-    "Download volume": ["Avg Monthly GB Download"],
-    "Paperless billing": ["Paperless Billing"],
+    "People in the household": ["Number of Dependents"],
+    "Friends referred": ["Number of Referrals", "Referred a Friend"],
+    "Data usage": ["Avg Monthly GB Download"],
+    "Online-only billing": ["Paperless Billing"],
 }
 
 
@@ -50,7 +49,7 @@ def group_contributions(columns, values):
         used.update(cols)
         result[name] = float(sum(values[index[c]] for c in cols))
     rest = [c for c in columns if c not in used]
-    result["Other variables"] = float(sum(values[index[c]] for c in rest))
+    result["Other factors"] = float(sum(values[index[c]] for c in rest))
     return result
 
 
@@ -69,92 +68,115 @@ def _card(ax):
     ))
 
 
+def _level(proba, threshold):
+    if threshold <= 1:
+        if proba >= threshold:
+            return "HIGH RISK", RED
+        if proba >= 0.6 * threshold:
+            return "MODERATE RISK", AMBER
+        return "LOW RISK", GREEN
+    if proba >= 0.5:
+        return "HIGH RISK", RED
+    if proba >= 0.25:
+        return "MODERATE RISK", AMBER
+    return "LOW RISK", GREEN
+
+
+def _short(value):
+    return f" ({value})" if value else ""
+
+
 def build_recap(profile, proba, threshold, expected_gain, contact, assumptions, contributions):
-    fig = plt.figure(figsize=(11, 7.6), facecolor=SURFACE)
+    fig = plt.figure(figsize=(11, 7.4), facecolor=SURFACE)
 
-    fig.text(0.05, 0.945, "Customer churn recap", fontsize=20, fontweight="bold", color=INK, va="center")
-    fig.text(
-        0.05, 0.905,
-        f"Demo on the IBM Telco dataset (fictional)  ·  {date.today().strftime('%d %b %Y')}",
-        fontsize=9.5, color=MUTED, va="center",
-    )
+    fig.text(0.05, 0.94, "Customer summary", fontsize=20, fontweight="bold", color=INK, va="center")
+    fig.text(0.05, 0.90, f"Demo with fictional data  ·  {date.today().strftime('%d %b %Y')}",
+             fontsize=9.5, color=MUTED, va="center")
 
-    hero = _panel(fig, [0.05, 0.64, 0.40, 0.22])
-    _card(hero)
-    hero.text(0.06, 0.88, "Probability of leaving", fontsize=10.5, color=INK_2, va="center", transform=hero.transAxes)
-    hero.text(0.06, 0.60, f"{proba:.0%}", fontsize=44, fontweight="bold", color=INK, va="center", transform=hero.transAxes)
-    track_y, track_h = 0.26, 0.11
-    hero.add_patch(Rectangle((0.06, track_y), 0.88, track_h, color=GRID, transform=hero.transAxes))
-    hero.add_patch(Rectangle((0.06, track_y), 0.88 * min(proba, 1.0), track_h, color=BLUE, transform=hero.transAxes))
+    risk = _panel(fig, [0.05, 0.60, 0.43, 0.25])
+    _card(risk)
+    level, level_color = _level(proba, threshold)
+    risk.text(0.06, 0.86, "Chance this customer leaves", fontsize=10.5, color=INK_2, va="center")
+    risk.text(0.06, 0.62, f"{proba:.0%}", fontsize=40, fontweight="bold", color=INK, va="center")
+    risk.text(0.94, 0.62, level, fontsize=13, fontweight="bold", color=level_color, va="center", ha="right")
+    track_y, track_h = 0.27, 0.11
+    risk.add_patch(Rectangle((0.06, track_y), 0.88, track_h, color=GRID))
+    risk.add_patch(Rectangle((0.06, track_y), 0.88 * min(proba, 1.0), track_h, color=level_color))
     if threshold <= 1:
         tx = 0.06 + 0.88 * threshold
-        hero.plot([tx, tx], [track_y - 0.05, track_y + track_h + 0.05], color=INK, linewidth=1.6, transform=hero.transAxes)
-        hero.text(tx, track_y - 0.09, f"Break-even {threshold:.0%}", fontsize=8.5, color=INK_2,
-                  ha="center", va="top", transform=hero.transAxes)
+        risk.plot([tx, tx], [track_y - 0.05, track_y + track_h + 0.05], color=INK, linewidth=1.6)
+        risk.text(tx, track_y - 0.09, f"Worth acting above {threshold:.0%}", fontsize=8.5, color=INK_2,
+                  ha="center", va="top")
 
-    decision = _panel(fig, [0.50, 0.64, 0.45, 0.22])
-    _card(decision)
+    action = _panel(fig, [0.52, 0.60, 0.43, 0.25])
+    _card(action)
+    action.text(0.06, 0.86, "What to do", fontsize=10.5, color=INK_2, va="center")
     if contact:
-        decision.text(0.06, 0.82, "✔  Contact with a retention offer", fontsize=13, fontweight="bold",
-                      color=GOOD_TEXT, va="center", transform=decision.transAxes)
+        action.text(0.06, 0.66, "Make an offer to keep them", fontsize=16, fontweight="bold", color=GREEN, va="center")
+        lines = ("Expected result: about", f"{abs(expected_gain):,.0f} € gained on average.")
     else:
-        decision.text(0.06, 0.82, "✖  No action", fontsize=13, fontweight="bold",
-                      color=INK_2, va="center", transform=decision.transAxes)
-    gain_label = "Expected gain" if expected_gain >= 0 else "Expected cost of contacting"
-    decision.text(0.06, 0.55, f"{gain_label}", fontsize=10, color=INK_2, va="center", transform=decision.transAxes)
-    decision.text(0.06, 0.34, f"{abs(expected_gain):,.0f} €", fontsize=26, fontweight="bold", color=INK,
-                  va="center", transform=decision.transAxes)
-    decision.text(
+        action.text(0.06, 0.66, "No action needed for now", fontsize=16, fontweight="bold", color=INK_2, va="center")
+        lines = ("The offer would cost about", f"{abs(expected_gain):,.0f} € more than it brings back.")
+    action.text(0.06, 0.48, lines[0], fontsize=9.5, color=INK, va="center")
+    action.text(0.06, 0.38, lines[1], fontsize=9.5, color=INK, va="center")
+    action.text(
+        0.06, 0.20,
+        f"We assumed: the offer costs {assumptions['offer_cost']:,.0f} € and works "
+        f"{assumptions['success_rate']:.0%} of the time,",
+        fontsize=8.5, color=MUTED, va="center",
+    )
+    action.text(
         0.06, 0.10,
-        f"offer {assumptions['offer_cost']:,.0f} €  ·  success rate {assumptions['success_rate']:.0%}  ·  "
-        f"customer value {assumptions['customer_value']:,.0f} €",
-        fontsize=8.5, color=MUTED, va="center", transform=decision.transAxes,
+        f"and a customer who stays is worth {assumptions['customer_value']:,.0f} € a year.",
+        fontsize=8.5, color=MUTED, va="center",
     )
 
-    prof = _panel(fig, [0.05, 0.14, 0.27, 0.44])
-    prof.text(0.0, 0.97, "Customer profile", fontsize=11.5, fontweight="bold", color=INK, va="center")
+    snap = _panel(fig, [0.05, 0.08, 0.30, 0.44])
+    snap.text(0.0, 0.97, "Customer details", fontsize=12, fontweight="bold", color=INK, va="center")
     n = len(profile)
     for i, (label, value) in enumerate(profile):
         y = 0.86 - i * (0.80 / max(n - 1, 1))
-        prof.text(0.0, y, label, fontsize=9.5, color=INK_2, va="center")
-        prof.text(1.0, y, value, fontsize=9.5, color=INK, va="center", ha="right")
-        prof.plot([0, 1], [y - 0.04, y - 0.04], color=GRID, linewidth=0.8)
+        snap.text(0.0, y, label, fontsize=9.5, color=INK_2, va="center")
+        snap.text(1.0, y, value, fontsize=9.5, color=INK, va="center", ha="right")
+        snap.plot([0, 1], [y - 0.04, y - 0.04], color=GRID, linewidth=0.8)
 
-    ax = fig.add_axes([0.46, 0.14, 0.40, 0.38], facecolor=SURFACE)
-    fig.text(0.37, 0.567, "What moves this score", fontsize=11.5, fontweight="bold", color=INK, va="center")
-    fig.text(0.37, 0.537, "Push of each answer compared with the average customer", fontsize=8.5, color=MUTED, va="center")
+    names = list(GROUPS.keys())
+    values = [value for _, value in profile] if len(profile) == len(GROUPS) else [None] * len(GROUPS)
+    shown = dict(zip(names, values))
+    items = [(k, contributions.get(k, 0.0)) for k in names]
+    items.sort(key=lambda kv: kv[1])
+    up = max(items, key=lambda kv: kv[1])
+    down = min(items, key=lambda kv: kv[1])
 
-    items = [(k, v) for k, v in contributions.items() if k != "Other variables"]
-    items.sort(key=lambda kv: abs(kv[1]))
-    if "Other variables" in contributions:
-        items.insert(0, ("Other variables", contributions["Other variables"]))
-    names = [k for k, _ in items]
+    fig.text(0.40, 0.515, "What explains this result", fontsize=12, fontweight="bold", color=INK, va="center")
+    fig.text(0.40, 0.482, "Each bar shows how much one detail raises or lowers the risk.", fontsize=9, color=MUTED, va="center")
+    reasons = []
+    if up[1] >= 0.1:
+        reasons.append(("Main reason they might leave: ", f"{up[0]}{_short(shown.get(up[0]))}", RED))
+    if down[1] <= -0.1:
+        reasons.append(("Main reason they might stay: ", f"{down[0]}{_short(shown.get(down[0]))}", BLUE))
+    for k, (lead, text, color) in enumerate(reasons):
+        y = 0.445 - k * 0.03
+        fig.text(0.40, y, lead, fontsize=9.5, color=INK_2, va="center")
+        fig.text(0.60, y, text, fontsize=9.5, fontweight="bold", color=color, va="center")
+
+    ax = fig.add_axes([0.66, 0.12, 0.29, 0.25], facecolor=SURFACE)
     vals = np.array([v for _, v in items])
     ypos = np.arange(len(items))
-    colors = [RED if v > 0 else BLUE for v in vals]
-    ax.barh(ypos, vals, height=0.55, color=colors, edgecolor=SURFACE, linewidth=1.5)
-    ax.axvline(0, color=AXIS, linewidth=1)
-    span = max(np.abs(vals).max(), 0.5)
-    ax.set_xlim(-span * 1.35, span * 1.35)
+    ax.barh(ypos, vals, height=0.62, color=[RED if v > 0 else BLUE for v in vals], edgecolor=SURFACE, linewidth=1.2)
+    ax.axvline(0, color=MUTED, linewidth=1)
+    span = max(np.abs(vals).max(), 0.5) * 1.1
+    ax.set_xlim(-span, span)
     ax.set_ylim(-0.7, len(items) - 0.3)
     ax.set_yticks(ypos)
-    ax.set_yticklabels(names, fontsize=9.5, color=INK_2)
-    for y, v in zip(ypos, vals):
-        offset = span * 0.04
-        text = "0.00" if round(v, 2) == 0 else f"{v:+.2f}".replace("-", "−")
-        ax.text(v + (offset if v >= 0 else -offset), y, text, fontsize=8.5, color=INK,
-                va="center", ha="left" if v >= 0 else "right")
+    ax.set_yticklabels([f"{k}: {shown[k]}" if shown.get(k) else k for k, _ in items], fontsize=9, color=INK_2)
+    ax.set_xticks([])
     ax.tick_params(axis="y", length=0, pad=6)
-    ax.tick_params(axis="x", labelsize=8, colors=MUTED, length=0)
-    ax.grid(axis="x", color=GRID, linewidth=0.8)
-    ax.set_axisbelow(True)
     for side in ("top", "right", "left", "bottom"):
         ax.spines[side].set_visible(False)
 
-    lx = 0.37
-    for color, label, dx in ((RED, "Raises the risk", 0.0), (BLUE, "Lowers the risk", 0.15)):
-        fig.patches.append(Rectangle((lx + dx, 0.083), 0.012, 0.018, transform=fig.transFigure, color=color))
-        fig.text(lx + dx + 0.018, 0.092, label, fontsize=8.5, color=INK_2, va="center")
+    fig.text(0.66, 0.085, "← Helps keep them", fontsize=9, color=BLUE, fontweight="bold", va="center")
+    fig.text(0.95, 0.085, "Pushes them to leave →", fontsize=9, color=RED, fontweight="bold", va="center", ha="right")
 
     return fig
 
