@@ -156,13 +156,6 @@ def build_recap(profile, proba, threshold, expected_gain, contact, assumptions, 
         fig.patches.append(Rectangle((lx + dx, 0.083), 0.012, 0.018, transform=fig.transFigure, color=color))
         fig.text(lx + dx + 0.018, 0.092, label, fontsize=8.5, color=INK_2, va="center")
 
-    fig.text(
-        0.05, 0.035,
-        "Scores come from a gradient boosting model trained on about 6,000 fictional customers with more than 3 months of tenure. "
-        "Pushes are SHAP values (log-odds).\nOnly 10 answers are asked; the other variables take typical values. "
-        "The costs are assumptions. Not for real decisions.",
-        fontsize=7.5, color=MUTED, va="center", linespacing=1.5,
-    )
     return fig
 
 
