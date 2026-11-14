@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
-from recap import build_recap, figure_bytes, group_contributions
+from recap_simple import build_recap, figure_bytes, group_contributions
 
 try:
     import shap
